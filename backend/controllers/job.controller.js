@@ -1,4 +1,6 @@
 import { Job } from "../models/job.model.js";
+import { Application } from "../models/application.model.js";
+import natural from "natural"; // ✅ Import natural
 
 // admin post krega job
 export const postJob = async (req, res) => {
@@ -126,16 +128,17 @@ export const getAdminJobs = async (req, res) => {
 // Collaborative Filtering (User-Based)
 export const getSimilarJobs = async (userId, k = 5) => {
   try {
-    const applications = await Application.find().populate("user job");
+    const applications = await Application.find().populate("applicant job"); // ✅ Correct field name
 
     if (!applications.length) return [];
 
     const userJobMap = new Map();
     applications.forEach((app) => {
-      if (!userJobMap.has(app.user._id.toString())) {
-        userJobMap.set(app.user._id.toString(), new Set());
+      if (!userJobMap.has(app.applicant._id.toString())) {
+        // ✅ Use "applicant"
+        userJobMap.set(app.applicant._id.toString(), new Set());
       }
-      userJobMap.get(app.user._id.toString()).add(app.job._id.toString());
+      userJobMap.get(app.applicant._id.toString()).add(app.job._id.toString());
     });
 
     const targetUserJobs = userJobMap.get(userId.toString()) || new Set();
@@ -226,6 +229,7 @@ export const getRecommendedJobs = async (req, res) => {
     return res.status(200).json({
       collaborativeFiltering: collaborativeJobs,
       contentBasedFiltering: contentJobs,
+      success: true,
     });
   } catch (error) {
     console.error("Error fetching recommendations:", error);
