@@ -14,7 +14,8 @@ import AdminJobs from "./components/admin/AdminJobs";
 import PostJob from './components/admin/PostJob'
 import Applicants from './components/admin/Applicants'
 import ProtectedRoute from './components/admin/ProtectedRoute'
-
+import Mock from './components/Mock'
+import TestPage from './components/Test'
 
 const appRouter = createBrowserRouter([
   {
@@ -44,6 +45,14 @@ const appRouter = createBrowserRouter([
   {
     path: "/profile",
     element: <Profile />
+  },
+  {
+    path: "/mock",
+    element: <Mock />
+  },
+  {
+    path:"/test",
+    element: <TestPage />
   },
   // admin ke liye yha se start hoga
   {
