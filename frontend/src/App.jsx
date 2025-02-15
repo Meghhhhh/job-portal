@@ -19,6 +19,7 @@ import Mock from './components/Mock';
 import TestPage from './components/Test';
 import { CiChat1 } from "react-icons/ci";
 import ChatModal from './components/ChatModal';
+import ResumeBuilder from './components/resume/ResumeBuilder'
 
 const appRouter = createBrowserRouter([
   { path: '/', element: <Home /> },
@@ -28,6 +29,7 @@ const appRouter = createBrowserRouter([
   { path: '/description/:id', element: <JobDescription /> },
   { path: '/browse', element: <Browse /> },
   { path: '/profile', element: <Profile /> },
+  { path: "/resume", element: <ResumeBuilder /> },
   { path: '/mock', element: <Mock /> },
   { path: '/test', element: <TestPage /> },
   { path: '/admin/companies', element: <ProtectedRoute><Companies/></ProtectedRoute> },
