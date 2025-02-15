@@ -1,14 +1,22 @@
-const mongoose = require("mongoose");
 
-const ResumeSchema = new mongoose.Schema({
+import mongoose from 'mongoose';
+
+const resumeSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User", 
+    ref: 'User',
     required: true,
   },
-  fileUrl: { type: String, default: null },
-  parsedText: { type: String, required: true }, 
-  uploadedAt: { type: Date, default: Date.now },
+  skills: { type: [String], default: [], required: true },
+  projects: [
+    {
+      name: String,
+      description: String,
+    },
+  ],
+  experience: { type: [String], default: [] },
+  resumeUri: { type: String },
 });
 
-module.exports = mongoose.model("Resume", ResumeSchema);
+export const Resume = mongoose.model('Resume', resumeSchema);
+
