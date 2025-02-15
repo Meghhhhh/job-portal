@@ -2,7 +2,7 @@ import React from 'react';
 
 const Section = ({ title, content }) => (
   <div className="mb-6">
-    <h2 className="text-xl font-bold border-b-2 border-gray-500 pb-1">
+    <h2 className="text-xl font-bold border-b-2 border-gray-500 pb-3">
       {title}
     </h2>
     <div className="mt-2">{content}</div>
@@ -86,7 +86,7 @@ const Preview = ({data}) => {
 //   };
 
   return (
-    <div className="max-w-4xl border-2 border-black mx-auto bg-white text-black p-8 shadow-md font-serif">
+    <div className="max-w-4xl mx-auto bg-white text-black p-8 shadow-md font-serif">
       {/* Header */}
       <div className="text-center mb-6">
         <h1 className="text-3xl font-bold">{data.name}</h1>
@@ -169,3 +169,4 @@ const Preview = ({data}) => {
 };
 
 export default Preview;
+

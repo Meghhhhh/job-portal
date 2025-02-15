@@ -2,7 +2,6 @@
 import dotenv from 'dotenv';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { Resume } from '../models/resume.model.js';
-import { User } from '../models/user.model.js';
 import getDataUri from '../utils/datauri.js';
 import cloudinary from '../utils/cloudinary.js';
 
@@ -47,21 +46,25 @@ export const uploadResume = async (req, res) => {
     const existingResume = await Resume.findOne({ userId });
 
     let resumeUri = existingResume?.resumeUri || null;
+    let pid = existingResume?.publicId || null;
+    let publicId;
 
     if (file) {
-      if (resumeUri) {
-        const publicId = resumeUri.split('/').pop().split('.')[0];
-        await cloudinary.uploader.destroy(publicId);
+      if (pid) {
+        await cloudinary.uploader.destroy(pid, { resource_type: 'raw' });
       }
 
       const fileUri = getDataUri(file);
       const cloudResponse = await cloudinary.uploader.upload(fileUri.content, {
         resource_type: 'raw',
+        public_id: `${userId}_${Date.now()}.pdf`, 
+        format: 'pdf', 
       });
       resumeUri = cloudResponse.secure_url;
+      publicId = cloudResponse.public_id;
     }
 
-    const updatedData = { userId, skills, projects, experience, resumeUri };
+    const updatedData = { userId, skills, projects, experience, resumeUri, publicId };
 
     const resume = await Resume.findOneAndUpdate({ userId }, updatedData, {
       new: true,
