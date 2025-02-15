@@ -1,5 +1,9 @@
 import dotenv from 'dotenv';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { Resume } from '../models/resume.model.js';
+import { User } from '../models/user.model.js';
+import getDataUri from '../utils/datauri.js';
+import cloudinary from '../utils/cloudinary.js';
 
 dotenv.config({});
 
@@ -24,5 +28,53 @@ export const generateSummary = async (req, res) => {
   } catch (error) {
     console.error('Error:', error);
     res.status(500).json({ message: 'Error generating response', error });
+  }
+};
+
+export const uploadResume = async (req, res) => {
+  try {
+    const { userId } = req.body;
+    // const userId = req.id;
+    const file = req.file;
+    const skills = JSON.parse(req.body.skills);
+    const projects = JSON.parse(req.body.projects);
+    const experience = JSON.parse(req.body.experience);
+    if (!userId) {
+      return res.status(400).json({ message: 'User ID is required.' });
+    }
+
+    const existingResume = await Resume.findOne({ userId });
+
+    let resumeUri = existingResume?.resumeUri || null;
+
+    if (file) {
+      if (resumeUri) {
+        const publicId = resumeUri.split('/').pop().split('.')[0];
+        await cloudinary.uploader.destroy(publicId);
+      }
+
+      const fileUri = getDataUri(file);
+      const cloudResponse = await cloudinary.uploader.upload(fileUri.content, {
+        resource_type: 'raw',
+      });
+      resumeUri = cloudResponse.secure_url;
+    }
+
+    const updatedData = { userId, skills, projects, experience, resumeUri };
+
+    const resume = await Resume.findOneAndUpdate({ userId }, updatedData, {
+      new: true,
+      upsert: true,
+      setDefaultsOnInsert: true,
+    });
+
+    return res.status(200).json({
+      message: 'Resume uploaded successfully.',
+      data: resume,
+      success: true,
+    });
+  } catch (error) {
+    console.error('Error uploading resume:', error);
+    return res.status(500).json({ message: 'Error uploading resume', error });
   }
 };
