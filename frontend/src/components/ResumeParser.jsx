@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { RESUME_API_END_POINT } from "@/utils/constant";
 
 const ResumeParser = () => {
   const [resumeFile, setResumeFile] = useState(null);

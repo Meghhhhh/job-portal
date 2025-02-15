@@ -12,15 +12,29 @@ def resume_extractor(resume_data):
         prompt = '''
         Parse the following resume and return ONLY a JSON object. 
         Ensure the response starts with `{` and ends with `}`.
-
         {
-            "full_name": "string",
-            "email": "string",
-            "github": "string",
-            "linkedin": "string",
-            "employment": [{"company": "string", "position": "string", "duration": "string"}],
-            "technical_skills": ["string"],
-            "soft_skills": ["string"]
+            name: 'string',
+            email: 'string',
+            mobile: 'string',
+            schoolAddress: ''string,
+            permanentAddress: 'string',
+            summary: 'string',
+            education: [
+            {
+                institution: 'string',
+                location: 'string',
+                degree: 'string',
+                extra: 'string',
+                gpa: 'string',
+                honors: 'string',
+            },
+            ],
+            experience: [
+            { role: 'string', company: 'string', location: 'string', duration: 'string', details: 'string' },
+            ],
+            projects: [{ name: 'string', description: 'string' }],
+            achievements: [{ title: 'string', description: 'string' }],
+            skills: ["string"],
         }
         '''
 
