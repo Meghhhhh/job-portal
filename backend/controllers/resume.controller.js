@@ -1,3 +1,4 @@
+
 import dotenv from 'dotenv';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { Resume } from '../models/resume.model.js';
@@ -78,3 +79,4 @@ export const uploadResume = async (req, res) => {
     return res.status(500).json({ message: 'Error uploading resume', error });
   }
 };
+

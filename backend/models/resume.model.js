@@ -1,3 +1,4 @@
+
 import mongoose from 'mongoose';
 
 const resumeSchema = new mongoose.Schema({
@@ -18,3 +19,4 @@ const resumeSchema = new mongoose.Schema({
 });
 
 export const Resume = mongoose.model('Resume', resumeSchema);
+

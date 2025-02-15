@@ -1,0 +1,44 @@
+.buttonContainer {
+    position: relative;
+    overflow: hidden;
+    background-color: #6A38C2; /* Blue Background */
+    color: white;
+    font-size: 1.2rem;
+    font-weight: bold;
+    padding: 12px 24px;
+    border-radius: 8px;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out;
+  }
+  
+  .buttonContainer:hover {
+    transform: scale(1.05);
+    border: 2px;
+  }
+  
+  /* Bubbles Animation */
+  .buttonContainer::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 200%;
+    height: 300%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 10%, transparent 50%);
+    transform: translateX(-50%);
+    animation: bubbleAnimation 5s infinite linear;
+  }
+  
+  @keyframes bubbleAnimation {
+    0% {
+      top: 100%;
+    }
+    100% {
+      top: -50%;
+    }
+  }
+  
