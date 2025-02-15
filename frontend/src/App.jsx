@@ -1,4 +1,7 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import "regenerator-runtime/runtime";
+
+
 import Navbar from './components/shared/Navbar'
 import Login from './components/auth/Login'
 import Signup from './components/auth/Signup'
@@ -14,7 +17,7 @@ import AdminJobs from "./components/admin/AdminJobs";
 import PostJob from './components/admin/PostJob'
 import Applicants from './components/admin/Applicants'
 import ProtectedRoute from './components/admin/ProtectedRoute'
-
+import MockDashboard from './components/MockInterview/MockDashboard'
 
 const appRouter = createBrowserRouter([
   {
@@ -44,6 +47,10 @@ const appRouter = createBrowserRouter([
   {
     path: "/profile",
     element: <Profile />
+  },
+  {
+    path: "/mockdashboard",
+    element: <MockDashboard />
   },
   // admin ke liye yha se start hoga
   {
