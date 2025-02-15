@@ -1,42 +1,24 @@
 import requests
 import json
-import yaml
 import logging
-from pathlib import Path
 from typing import Dict
 import re
+from dotenv import load_dotenv
+import os
+
+load_dotenv() ## load all our environment variables
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-def load_config():
-    """Load API key from config file"""
-    try:
-        config_path = Path("config.yaml")
-        logger.debug(f"Loading config from {config_path}")
-
-        if not config_path.exists():
-            raise FileNotFoundError(f"Config file not found at {config_path}")
-
-        with open(config_path) as file:
-            config = yaml.safe_load(file)
-
-        if 'OPENROUTER_API_KEY' not in config:
-            raise KeyError("OPENROUTER_API_KEY not found in config file")
-
-        return config['OPENROUTER_API_KEY']
-    except Exception as e:
-        logger.exception("Error loading config")
-        raise
-
-def ats_extractor(resume_data: str) -> Dict:
+def resume_extractor(resume_data: str) -> Dict:
     """Extract structured information from resume text"""
     try:
-        logger.debug("Starting ATS extraction")
+        logger.debug("Starting Resume extraction")
 
         # Load API key
-        api_key = load_config()
+        api_key = os.getenv("OPENROUTER_API_KEY")
         logger.debug("Config loaded successfully")
 
         # OpenRouter API URL
@@ -111,5 +93,5 @@ def ats_extractor(resume_data: str) -> Dict:
         raise ValueError("Failed to parse AI response as JSON")
 
     except Exception as e:
-        logger.exception("Error in ATS extraction")
+        logger.exception("Error in Resume extraction")
         raise
