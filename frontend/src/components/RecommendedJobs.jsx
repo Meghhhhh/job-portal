@@ -14,7 +14,7 @@ const RecommendedJobs = () => {
         <span className="text-[#6A38C2]">Recommended</span> Job Openings
       </h1>
       <div className="grid grid-cols-3 gap-4 my-5">
-        {recommendedJobs.length <= 0 ? (
+        {!recommendedJobs || recommendedJobs?.length <= 0 ? (
           <span>No Job Available</span>
         ) : (
           recommendedJobs
