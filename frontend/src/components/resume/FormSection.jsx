@@ -1,30 +1,80 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
+import axios from "axios";
 
 const FormSection = ({ onUpdate }) => {
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    mobile: '',
-    schoolAddress: '',
-    permanentAddress: '',
-    summary: '',
+    name: "",
+    email: "",
+    mobile: "",
+    schoolAddress: "",
+    permanentAddress: "",
+    summary: "",
     education: [
       {
-        institution: '',
-        location: '',
-        degree: '',
-        extra: '',
-        gpa: '',
-        honors: '',
+        institution: "",
+        location: "",
+        degree: "",
+        extra: "",
+        gpa: "",
+        honors: "",
       },
     ],
     experience: [
-      { role: '', company: '', location: '', duration: '', details: '' },
+      { role: "", company: "", location: "", duration: "", details: "" },
     ],
-    projects: [{ name: '', description: '' }],
-    achievements: [{ title: '', description: '' }],
+    projects: [{ name: "", description: "" }],
+    achievements: [{ title: "", description: "" }],
     skills: [],
   });
+  const handleFileChange = (event, setFile) => {
+    setFile(event.target.files[0]);
+  };
+  const [resumeFile, setResumeFile] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmitResume = async (event) => {
+    event.preventDefault();
+    if (!resumeFile) return alert("Please upload a PDF resume.");
+    setLoading(true);
+    const formData = new FormData();
+    formData.append("pdf_doc", resumeFile);
+
+    try {
+      const response = await axios.post(
+        `http://127.0.0.1:5000/process`,
+        // `${RESUME_API_END_POINT}/process`,
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
+      const data = response.data; // Extract response data
+
+      // Update formData with extracted details
+      setFormData((prevData) => ({
+        ...prevData,
+        name: data.name || prevData.name,
+        email: data.email || prevData.email,
+        mobile: data.mobile || prevData.mobile,
+        schoolAddress: data.schoolAddress || prevData.schoolAddress,
+        permanentAddress: data.permanentAddress || prevData.permanentAddress,
+        summary: data.summary || prevData.summary,
+        skills: data.skills || prevData.skills,
+        education: data.education || prevData.education,
+        experience: data.experience || prevData.experience,
+        projects: data.projects || prevData.projects,
+        achievements: data.achievements || prevData.achievements,
+      }));
+
+      // Propagate updated data to parent component if needed
+      onUpdate(data);
+    } catch (error) {
+      console.error("Error processing resume:", error);
+      alert("Error processing resume.");
+    } finally {
+      setLoading(false); // Reset loading after request completes
+    }
+  };
 
   // Handle input change
   const handleChange = (e, index, section, field) => {
@@ -42,14 +92,38 @@ const FormSection = ({ onUpdate }) => {
 
   // Handle array additions
   const addField = (section, emptyData) => {
-    setFormData(prevData => ({
+    setFormData((prevData) => ({
+
       ...prevData,
       [section]: [...prevData[section], emptyData],
     }));
   };
 
   return (
-    <form
+    <>
+      <div className="w-full max-w-3xl p-6 rounded-lg shadow-md">
+        <h2 className="text-lg font-semibold">Upload Resume</h2>
+        <form onSubmit={handleSubmitResume} className="mt-4">
+          <input
+            type="file"
+            accept=".pdf"
+            className="block w-full text-sm text-gray-300 p-2 rounded-lg cursor-pointer bg-gray-700 focus:outline-none"
+            onChange={(e) => handleFileChange(e, setResumeFile)}
+          />
+          <button
+            type="submit"
+            className={`mt-4 w-full py-2 rounded-md transition ${
+              resumeFile && !loading
+                ? "bg-blue-600 text-white hover:bg-blue-700"
+                : "bg-gray-400 text-gray-200 cursor-not-allowed"
+            }`}
+            disabled={!resumeFile || loading}
+          >
+            {loading ? "Processing..." : "Process Resume"}
+          </button>
+        </form>
+      </div>
+      <form
       className="max-w-4xl mx-auto border-2 border-black bg-white p-6 shadow-md rounded-lg space-y-4"
     >
       {/* Personal Info */}
@@ -288,6 +362,7 @@ const FormSection = ({ onUpdate }) => {
         Generate Resume
       </button> */}
     </form>
+    </>
   );
 };
 

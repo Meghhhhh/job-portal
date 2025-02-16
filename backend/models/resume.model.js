@@ -1,3 +1,4 @@
+
 import mongoose from 'mongoose';
 
 const resumeSchema = new mongoose.Schema({
@@ -15,6 +16,8 @@ const resumeSchema = new mongoose.Schema({
   ],
   experience: { type: [String], default: [] },
   resumeUri: { type: String },
+  publicId : { type: String },
 });
 
 export const Resume = mongoose.model('Resume', resumeSchema);
+

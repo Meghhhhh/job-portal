@@ -1,4 +1,5 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+  import "regenerator-runtime/runtime";
 import { useState } from 'react';
 import Navbar from './components/shared/Navbar';
 import Login from './components/auth/Login';
@@ -20,7 +21,7 @@ import TestPage from './components/Test';
 import { CiChat1 } from "react-icons/ci";
 import ChatModal from './components/ChatModal';
 import ResumeBuilder from './components/resume/ResumeBuilder'
-
+import MockDashboard from './components/MockInterview/MockDashboard'
 const appRouter = createBrowserRouter([
   { path: '/', element: <Home /> },
   { path: '/login', element: <Login /> },
@@ -31,6 +32,7 @@ const appRouter = createBrowserRouter([
   { path: '/profile', element: <Profile /> },
   { path: "/resume", element: <ResumeBuilder /> },
   { path: '/mock', element: <Mock /> },
+  {path: "/mockdashboard", element: <MockDashboard />},
   { path: '/test', element: <TestPage /> },
   { path: '/admin/companies', element: <ProtectedRoute><Companies/></ProtectedRoute> },
   { path: '/admin/companies/create', element: <ProtectedRoute><CompanyCreate/></ProtectedRoute> },
