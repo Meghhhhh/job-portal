@@ -261,6 +261,7 @@ const ResumeBuilder = () => {
           {/* AI generation  */}
           <button
             onClick={handleAIGenSum}
+            title='Please fill Skills, Experience & Projects for AI generated summary!'
             className={`mt-4 p-2 rounded-md transition ${
               canGenerateAISummary()
                 ? 'bg-blue-600 text-white hover:bg-blue-700'
@@ -274,6 +275,7 @@ const ResumeBuilder = () => {
           {/* PDF Download Button */}
           <button
             onClick={handleGenerateAndUpload}
+            title='Please fill all the fields to download the pdf!'
             className={`m-4 p-2 rounded-md transition ${
               isResumeComplete()
                 ? 'bg-blue-600 text-white hover:bg-blue-700'
