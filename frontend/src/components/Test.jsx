@@ -28,8 +28,26 @@ const TestPage = () => {
     setAnswers(newAnswers);
   };
 
-  const handleSubmit = () => {
-    console.log("Submitted Answers:", answers);
+  const handleSubmit = async () => {
+    const formattedAnswers = answers.map((answer, index) => ({
+      answer_id: index + 1,
+      answer: answer,
+    }));
+    
+    try {
+      const stringans = JSON.stringify(formattedAnswers);
+      const response = await fetch("http://localhost:8000/api/v1/ai/mock-intv", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: stringans }),
+      });
+
+      const result = await response.json();
+      console.log("API Response:", result);
+    } catch (error) {
+      console.error("Error fetching scores:", error);
+    }
+
     navigate("/");
   };
 
