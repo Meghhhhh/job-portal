@@ -106,6 +106,7 @@ const ResumeBuilder = () => {
   const handleAIGenSum = async () => {
     try {
       setIsGenerating(true);
+      setResumeData(prev => ({ ...prev, summary: '' }));
 
       const promptData = {
         skills: resumeData.skills.join(', '),
@@ -125,7 +126,6 @@ const ResumeBuilder = () => {
         )
         .join('. ');
 
-      if (!resumeData.summary || resumeData.summary.trim() === '') {
         const response = await axios.post(
           `${RESUME_API_END_POINT}/generateSummary`,
           { prompt },
@@ -134,14 +134,10 @@ const ResumeBuilder = () => {
         console.log(response.data.data.candidates[0].content.parts[0].text);
 
         if (response.status === 201 && response?.data?.data) {
-          let updatedData = {
-            ...resumeData,
+          setResumeData(prev => ({
+            ...prev,
             summary: response.data.data.candidates[0].content.parts[0].text,
-          };
-          setResumeData(updatedData);
-        } else {
-          console.error('Failed to generate summary');
-        }
+          }));
       }
     } catch (error) {
       console.log('Error generating summary:', error);
