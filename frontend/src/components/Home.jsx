@@ -14,7 +14,6 @@ import { useNavigate } from "react-router-dom";
 import RecommendedJobs from "./RecommendedJobs";
 
 
-
 const Home = () => {
   useGetAllJobs();
   const { user } = useSelector((store) => store.auth);

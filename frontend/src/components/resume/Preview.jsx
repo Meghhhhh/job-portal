@@ -2,6 +2,7 @@ import React from 'react';
 
 const Section = ({ title, content }) => (
   <div className="mb-6">
+    <h2 className="text-xl font-bold border-b-2 border-gray-500 pb-1">
     <h2 className="text-xl font-bold border-b-2 border-gray-500 pb-3">
       {title}
     </h2>
@@ -169,4 +170,3 @@ const Preview = ({data}) => {
 };
 
 export default Preview;
-

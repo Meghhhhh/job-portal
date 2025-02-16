@@ -4,6 +4,7 @@ import Navbar from '../shared/Navbar';
 import Preview from './Preview';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
+import { useReactToPrint } from 'react-to-print';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { RESUME_API_END_POINT } from '@/utils/constant';

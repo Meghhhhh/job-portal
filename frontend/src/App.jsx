@@ -1,4 +1,3 @@
-
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
   import "regenerator-runtime/runtime";
 import { useState } from 'react';
@@ -42,7 +41,6 @@ const appRouter = createBrowserRouter([
   { path: '/admin/jobs/create', element:<ProtectedRoute><PostJob/></ProtectedRoute> },
   { path: '/admin/jobs/:id/applicants', element:<ProtectedRoute><Applicants/></ProtectedRoute> }
 ]);
-
 
 function App() {
   const [isChatOpen, setIsChatOpen] = useState(false);

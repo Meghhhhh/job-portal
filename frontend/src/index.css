@@ -74,8 +74,6 @@
       @apply bg-background text-foreground;
     }
   }
-
-
   .input-field {
     @apply w-full p-2 border rounded-md focus:ring focus:ring-blue-300;
   }
