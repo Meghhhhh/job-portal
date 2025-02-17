@@ -20,7 +20,7 @@ const Mock = () => {
 
       const data = await response.json();
       console.log("data", data);
-      navigate("/test", { state: { questions: data } });
+      navigate("/combinedMock", { state: { questions: data } });
     } catch (error) {
       console.error("Error fetching questions:", error);
     }
