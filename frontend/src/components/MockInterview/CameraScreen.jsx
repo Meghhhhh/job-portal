@@ -3,12 +3,12 @@ import axios from "axios";
 import { ReactMediaRecorder } from "react-media-recorder";
 import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognition";
 
-const CameraScreen = () => {
+const CameraScreen = ({ setTranscribedText }) => { // Accepting setTranscribedText as a prop
   const [uploading, setUploading] = useState(false);
   const [uploadedVideoUrl, setUploadedVideoUrl] = useState(null);
   const [resultFile, setResultFile] = useState(null);
   const [recording, setRecording] = useState(false);
-  const [transcribedText, setTranscribedText] = useState(""); // Store transcribed text
+  const [transcribedText, setLocalTranscribedText] = useState(""); // Store transcribed text locally
   const videoRef = useRef(null);
 
   // Speech Recognition Hook
@@ -60,10 +60,7 @@ const CameraScreen = () => {
         { headers: { "Content-Type": "multipart/form-data" } }
       );
 
-     // setUploadedVideoUrl(uploadResponse.data.videoUrl);
       setResultFile(uploadResponse.data.response);
-     // console.log("Uploaded Video URL:", uploadResponse.data.videoUrl);
-      console.log("Parsed Result:", uploadResponse.data.response);
     } catch (error) {
       console.error("Upload failed:", error);
     }
@@ -94,11 +91,12 @@ const CameraScreen = () => {
 
   const stopVoiceRecording = () => {
     SpeechRecognition.stopListening();
-    setTranscribedText(transcript); // Save final transcript
+    setLocalTranscribedText(transcript); // Save final transcript locally
+    setTranscribedText(transcript); // Pass transcribed text to parent component
   };
 
   return (
-    <div className="w-full md:w-1/2 flex items-center justify-center ml-auto">
+    <div className="w-[100%] border-2  flex m-20">
       <div className="bg-white shadow-lg rounded-lg p-6 w-full max-w-lg">
         <ReactMediaRecorder
           video
@@ -174,21 +172,8 @@ const CameraScreen = () => {
                 </button>
               )}
 
-            
-                 
-
               {/* Speech Recording Section */}
-              <div className="mt-6 w-full">
-              
-                
-                <textarea
-                  className="w-full p-2 border border-gray-300 rounded-lg"
-                  rows="3"
-                  value={transcribedText}
-                  readOnly
-                  placeholder="Recorded text will appear here..."
-                />
-              </div>
+             
 
               {/* Display Parsed Feedback */}
               {parsedResult && (

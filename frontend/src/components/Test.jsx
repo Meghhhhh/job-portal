@@ -1,14 +1,24 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
-const TestPage = () => {
+const TestPage = ({ questions = [], transcribedText }) => {
   const location = useLocation();
   const navigate = useNavigate();
 
   // Ensure questions is an array
-  const questionList = location.state?.questions?.result || location.state?.questions || [];
+  const questionList = Array.isArray(questions) ? questions : [];
+
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState(Array(questionList.length).fill(""));
+
+  // Prepopulate the answer for the current question with transcribedText
+  useEffect(() => {
+    if (transcribedText && currentQuestion === 0) {
+      const newAnswers = [...answers];
+      newAnswers[currentQuestion] = transcribedText;
+      setAnswers(newAnswers);
+    }
+  }, [transcribedText, currentQuestion]);
 
   const handleNext = () => {
     if (currentQuestion < questionList.length - 1) {
@@ -34,7 +44,7 @@ const TestPage = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-white text-black p-6 w-[50%]">
+    <div className="flex flex-col items-center justify-center min-h-screen border-x-lime-200 text-black p-6 w-[100%]">
       <div className="bg-white border border-purple-500 p-6 rounded-2xl shadow-lg w-full max-w-lg text-center">
         <h2 className="text-2xl font-bold text-purple-600 mb-4">Question {currentQuestion + 1}</h2>
         <p className="mb-4 text-black font-medium">
