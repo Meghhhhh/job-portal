@@ -205,3 +205,63 @@ def ats_extraction():
     except Exception as e:
         logging.exception("Error processing ATS extraction")
         return jsonify({"error": str(e)}), 500
+    
+@resume_bp.route("/extract-key-details", methods=["POST"])
+def extract_key_details():
+    try:
+        resume_url = request.form.get("resume_url")
+        if not resume_url:
+            return jsonify({"error": "No resume URL provided"}), 400
+
+        # Download the PDF from the provided URL
+        try:
+            response = requests.get(resume_url)
+            response.raise_for_status()
+            temp_pdf_path = UPLOAD_PATH / "resume_from_url.pdf"
+            with open(temp_pdf_path, "wb") as f:
+                f.write(response.content)
+        except Exception as e:
+            return jsonify({"error": f"Failed to fetch resume from URL: {str(e)}"}), 400
+
+        # Extract text from the downloaded PDF
+        text = input_pdf_text(temp_pdf_path)
+        temp_pdf_path.unlink()  # Clean up the temp file after extraction
+
+        if not text.strip():
+            return jsonify({"error": "Resume appears to be empty or unreadable"}), 400
+
+        # AI-powered parsing prompt
+        prompt = f"""
+        Extract only the following structured information from the resume text and return a well-formatted JSON response:
+
+        Resume Text: {text}
+
+        Expected JSON structure:
+        {{
+            "summary": "",  # Candidate's profile summary or objective
+            "skills": [],  # List of technical and soft skills
+            "projects": [
+                {{
+                    "name": "",  # Project title
+                    "description": "",  # Brief project description
+                    "technologies": []  # List of technologies used
+                }}
+            ],
+            "experience": [
+                {{
+                    "role": "",  # Job title
+                    "company": "",  # Company name
+                    "duration": "",  # Employment period (e.g., Jan 2020 - Dec 2022)
+                    "details": ""  # Key responsibilities and achievements
+                }}
+            ]
+        }}
+        """
+
+        response = get_gemini_response(prompt)
+
+        return jsonify(response)
+
+    except Exception as e:
+        logging.exception("Error extracting key details from resume")
+        return jsonify({"error": str(e)}), 500
