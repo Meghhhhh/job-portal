@@ -2,106 +2,23 @@ import React, { useState, useRef } from 'react';
 import FormSection from './FormSection';
 import Navbar from '../shared/Navbar';
 import Preview from './Preview';
-import { useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import axios from 'axios';
 import { useReactToPrint } from 'react-to-print';
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
 import { RESUME_API_END_POINT } from '@/utils/constant';
+import { setUser } from '@/redux/authSlice';
 
 const ResumeBuilder = () => {
   const [resumeData, setResumeData] = useState({});
   const [isUploading, setIsUploading] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
-  const { _id } = useSelector(state => state.auth.user);
   const contentRef = useRef(null);
+  const dispatch = useDispatch();
 
-  const generatePDF = async () => {
-    if (!contentRef.current) return null;
-
-    // Create PDF with A4 dimensions
-    const pdf = new jsPDF({
-      orientation: 'portrait',
-      unit: 'mm',
-      format: 'a4',
-    });
-
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
-
-    // Store original style
-    const originalStyle = contentRef.current.style.cssText;
-
-    // Set temporary style for capture
-    contentRef.current.style.width = '795px'; // A4 width in pixels at 96 DPI
-
-    // Get the total height of the content
-    const totalHeight = contentRef.current.scrollHeight;
-    const a4HeightInPx = pageHeight * 3.779528; // Convert mm to px (96 DPI)
-    const totalPages = Math.ceil(totalHeight / a4HeightInPx);
-
-    // Create a temporary container for each page section
-    const tempContainer = document.createElement('div');
-    tempContainer.style.position = 'absolute';
-    tempContainer.style.top = '0';
-    tempContainer.style.left = '0';
-    tempContainer.style.width = '795px';
-    document.body.appendChild(tempContainer);
-
-    try {
-      // Generate each page
-      for (let page = 0; page < totalPages; page++) {
-        // Clone the content for this page
-        const pageContent = contentRef.current.cloneNode(true);
-        tempContainer.innerHTML = '';
-        tempContainer.appendChild(pageContent);
-
-        // Set the clip region for this page
-        const topPosition = -page * a4HeightInPx;
-        pageContent.style.position = 'absolute';
-        pageContent.style.top = `${topPosition}px`;
-
-        // Capture this page section
-        const canvas = await html2canvas(tempContainer, {
-          scale: 3,
-          useCORS: true,
-          logging: false,
-          height: a4HeightInPx,
-          windowWidth: undefined,
-          windowHeight: undefined,
-          backgroundColor: '#ffffff',
-        });
-
-        // Convert canvas dimensions from pixels to millimeters
-        const imgWidth = canvas.width * 0.264583;
-        const imgHeight = canvas.height * 0.264583;
-
-        // Scale to fill page completely
-        const scale = Math.min(pageWidth / imgWidth, pageHeight / imgHeight);
-
-        // Add new page if not the first page
-        if (page > 0) {
-          pdf.addPage();
-        }
-
-        // Add the image to the PDF
-        pdf.addImage(
-          canvas.toDataURL('image/jpeg', 3.0),
-          'JPEG',
-          0,
-          0,
-          imgWidth * scale,
-          imgHeight * scale,
-        );
-      }
-    } finally {
-      // Clean up
-      document.body.removeChild(tempContainer);
-      contentRef.current.style.cssText = originalStyle;
-    }
-
-    return pdf;
-  };
+  const reactToPrintFn1 = useReactToPrint({
+    contentRef,
+    documentTitle: 'Resume',
+  });
 
   const handleAIGenSum = async () => {
     try {
@@ -150,22 +67,11 @@ const ResumeBuilder = () => {
     try {
       setIsUploading(true);
 
-      const pdf = await generatePDF();
-      if (!pdf) {
-        console.error('Failed to generate PDF');
-        return;
-      }
-
-      const pdfBlob = pdf.output('blob');
-      const pdfFile = new File([pdfBlob], 'resume.pdf', {
-        type: 'application/pdf',
-      });
-
+      // Prepare form data
       const formData = new FormData();
-      formData.append('file', pdfFile);
-      formData.append('userId', _id);
       formData.append('skills', JSON.stringify(resumeData.skills || []));
       formData.append('projects', JSON.stringify(resumeData.projects || []));
+      formData.append('summary', JSON.stringify(resumeData.summary || ''));
       formData.append(
         'experience',
         JSON.stringify(
@@ -174,6 +80,7 @@ const ResumeBuilder = () => {
         ),
       );
 
+      // Upload file to backend
       const response = await axios.post(
         `${RESUME_API_END_POINT}/upload-resume`,
         formData,
@@ -185,7 +92,8 @@ const ResumeBuilder = () => {
 
       if (response.data.success) {
         console.log('Resume uploaded successfully:', response.data);
-        pdf.save('resume.pdf');
+        dispatch(setUser(response.data.user));
+        reactToPrintFn1();
       } else {
         console.error('Failed to upload resume.');
       }
@@ -289,6 +197,8 @@ const ResumeBuilder = () => {
 };
 
 export default ResumeBuilder;
+
+// only download from create-resume, 
 
 // import React, { useState, useRef } from 'react';
 // import FormSection from './FormSection';

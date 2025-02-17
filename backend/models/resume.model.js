@@ -14,9 +14,8 @@ const resumeSchema = new mongoose.Schema({
       description: String,
     },
   ],
+  summary : {type: String, required: true},
   experience: { type: [String], default: [] },
-  resumeUri: { type: String },
-  publicId : { type: String },
 });
 
 export const Resume = mongoose.model('Resume', resumeSchema);
