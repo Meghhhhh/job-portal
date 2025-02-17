@@ -5,8 +5,7 @@ import {
   HarmBlockThreshold,
 } from '@google/generative-ai';
 import { Resume } from '../models/resume.model.js';
-import getDataUri from '../utils/datauri.js';
-import cloudinary from '../utils/cloudinary.js';
+import { User } from '../models/user.model.js';
 
 dotenv.config({});
 
@@ -32,7 +31,7 @@ async function run(prompt) {
         role: 'user',
         parts: [
           {
-            text: 'You are an AI ATS friendly summarizer which gives ATS friendly summary for resume in 200-300 words based on Skills, Experience and projects provided.',
+            text: 'You are an AI ATS friendly summarizer which gives ATS friendly summary for resume in exact 20 words based on Skills, Experience and projects provided.',
           },
         ],
       },
@@ -40,7 +39,7 @@ async function run(prompt) {
         role: 'model',
         parts: [
           {
-            text: "Please provide me with the Skills, Experience, and Projects you want me to analyze. I need this information to generate an ATS-friendly resume summary. \n\n**Here's what I'll need from you:**\n\n* **Skills:** List your technical skills, soft skills, programming languages, frameworks, tools, etc.\n* **Experience:** Describe your work history, including company names, job titles, dates of employment, and key responsibilities. \n* **Projects:** Detail any personal or academic projects, highlighting the technologies used, your contributions, and achievements.\n\nOnce you share this information, I'll craft a 300-400 word ATS-friendly summary that showcases your strengths, experience, and success across Skills, Experience, and Projects. \n\n**Let's optimize your resume for success!** \n",
+            text: "Please provide me with the Skills, Experience, and Projects you want me to analyze. I need this information to generate an ATS-friendly resume summary. \n\n**Here's what I'll need from you:**\n\n* **Skills:** List your technical skills, soft skills, programming languages, frameworks, tools, etc.\n* **Experience:** Describe your work history, including company names, job titles, dates of employment, and key responsibilities. \n* **Projects:** Detail any personal or academic projects, highlighting the technologies used, your contributions, and achievements.\n\nOnce you share this information, I'll craft an exact 20 word ATS-friendly summary that showcases your strengths, experience, and success across Skills, Experience, and Projects. \n\n**Let's optimize your resume for success!** \n",
           },
         ],
       },
@@ -71,44 +70,22 @@ export const generateSummary = async (req, res) => {
 
 export const uploadResume = async (req, res) => {
   try {
-    const { userId } = req.body;
-    // const userId = req.id;
-    const file = req.file;
+    // const { userId } = req.body;
+    const userId = req.id;
     const skills = JSON.parse(req.body.skills);
     const projects = JSON.parse(req.body.projects);
     const experience = JSON.parse(req.body.experience);
+    const summary = JSON.parse(req.body.summary);
     if (!userId) {
       return res.status(400).json({ message: 'User ID is required.' });
-    }
-
-    const existingResume = await Resume.findOne({ userId });
-
-    let resumeUri = existingResume?.resumeUri || null;
-    let pid = existingResume?.publicId || null;
-    let publicId;
-
-    if (file) {
-      if (pid) {
-        await cloudinary.uploader.destroy(pid, { resource_type: 'raw' });
-      }
-
-      const fileUri = getDataUri(file);
-      const cloudResponse = await cloudinary.uploader.upload(fileUri.content, {
-        resource_type: 'raw',
-        public_id: `${userId}_${Date.now()}.pdf`,
-        format: 'pdf',
-      });
-      resumeUri = cloudResponse.secure_url;
-      publicId = cloudResponse.public_id;
     }
 
     const updatedData = {
       userId,
       skills,
       projects,
+      summary,
       experience,
-      resumeUri,
-      publicId,
     };
 
     const resume = await Resume.findOneAndUpdate({ userId }, updatedData, {
@@ -117,11 +94,23 @@ export const uploadResume = async (req, res) => {
       setDefaultsOnInsert: true,
     });
 
+    const user = await User.findOneAndUpdate(
+      { _id: userId },
+      { 
+        $set: { 
+          "profile.skills": skills, 
+          "profile.bio": summary 
+        } 
+      },
+      { new: true }
+    );
+
     return res.status(200).json({
-      message: 'Resume uploaded successfully.',
-      data: resume,
+      message: 'Resume saved successfully.',
+      data: resume,user, 
       success: true,
     });
+
   } catch (error) {
     console.error('Error uploading resume:', error);
     return res.status(500).json({ message: 'Error uploading resume', error });
