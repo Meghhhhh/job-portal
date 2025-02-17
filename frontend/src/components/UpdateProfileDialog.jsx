@@ -26,7 +26,7 @@ const UpdateProfileDialog = ({ open, setOpen }) => {
     phoneNumber: user?.phoneNumber || "",
     bio: user?.profile?.bio || "",
     skills: user?.profile?.skills?.map((skill) => skill) || "",
-    file: user?.profile?.resume || "",
+    file: "",
   });
   const dispatch = useDispatch();
 
@@ -41,6 +41,10 @@ const UpdateProfileDialog = ({ open, setOpen }) => {
 
   const submitHandler = async (e) => {
     e.preventDefault();
+    if (input.file == "") {
+      toast.error("Please upload a file");
+      return;
+    }
     const formData = new FormData();
     formData.append("fullname", input.fullname);
     formData.append("email", input.email);
@@ -146,17 +150,19 @@ const UpdateProfileDialog = ({ open, setOpen }) => {
                                     className="col-span-3"
                                 />
                             </div> */}
-              {/* <div className='grid grid-cols-4 items-center gap-4'>
-                                <Label htmlFor="file" className="text-right">Resume</Label>
-                                <Input
-                                    id="file"
-                                    name="file"
-                                    type="file"
-                                    accept="application/pdf"
-                                    onChange={fileChangeHandler}
-                                    className="col-span-3"
-                                />
-                            </div> */}
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="file" className="text-right">
+                  Resume
+                </Label>
+                <Input
+                  id="file"
+                  name="file"
+                  type="file"
+                  accept="application/pdf"
+                  onChange={fileChangeHandler}
+                  className="col-span-3"
+                />
+              </div>
             </div>
             <DialogFooter>
               {loading ? (
@@ -165,7 +171,10 @@ const UpdateProfileDialog = ({ open, setOpen }) => {
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Please wait{" "}
                 </Button>
               ) : (
-                <Button type="submit" className="w-full my-4">
+                <Button
+                  type="submit"
+                  className="w-full my-4"
+                >
                   Update
                 </Button>
               )}
