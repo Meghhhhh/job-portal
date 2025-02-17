@@ -1,18 +1,18 @@
-import dotenv from 'dotenv';
+import dotenv from "dotenv";
 import {
   GoogleGenerativeAI,
   HarmCategory,
   HarmBlockThreshold,
-} from '@google/generative-ai';
-import { Resume } from '../models/resume.model.js';
-import { User } from '../models/user.model.js';
+} from "@google/generative-ai";
+import { Resume } from "../models/resume.model.js";
+import { User } from "../models/user.model.js";
 
 dotenv.config({});
 
 // todo : api key not coming from dotenv
 const genAI = new GoogleGenerativeAI(process.env.API_KEY_GEMINI);
 const model = genAI.getGenerativeModel({
-  model: 'tunedModels/skill-set-model-v2-ats-friendly--mo9npvn',
+  model: "tunedModels/skill-set-model-v2-ats-friendly--mo9npvn",
 });
 
 const generationConfig = {
@@ -20,7 +20,7 @@ const generationConfig = {
   topP: 0.95,
   topK: 40,
   maxOutputTokens: 8192,
-  responseMimeType: 'text/plain',
+  responseMimeType: "text/plain",
 };
 
 async function run(prompt) {
@@ -28,15 +28,15 @@ async function run(prompt) {
     generationConfig,
     history: [
       {
-        role: 'user',
+        role: "user",
         parts: [
           {
-            text: 'You are an AI ATS friendly summarizer which gives ATS friendly summary for resume in exact 20 words based on Skills, Experience and projects provided.',
+            text: "You are an AI ATS friendly summarizer which gives ATS friendly summary for resume in exact 20 words based on Skills, Experience and projects provided.",
           },
         ],
       },
       {
-        role: 'model',
+        role: "model",
         parts: [
           {
             text: "Please provide me with the Skills, Experience, and Projects you want me to analyze. I need this information to generate an ATS-friendly resume summary. \n\n**Here's what I'll need from you:**\n\n* **Skills:** List your technical skills, soft skills, programming languages, frameworks, tools, etc.\n* **Experience:** Describe your work history, including company names, job titles, dates of employment, and key responsibilities. \n* **Projects:** Detail any personal or academic projects, highlighting the technologies used, your contributions, and achievements.\n\nOnce you share this information, I'll craft an exact 20 word ATS-friendly summary that showcases your strengths, experience, and success across Skills, Experience, and Projects. \n\n**Let's optimize your resume for success!** \n",
@@ -58,13 +58,13 @@ export const generateSummary = async (req, res) => {
     // console.log(result.response.text());
 
     return res.status(201).json({
-      message: 'Summary created successfully.',
+      message: "Summary created successfully.",
       data: result.response,
       success: true,
     });
   } catch (error) {
-    console.error('Error:', error);
-    res.status(500).json({ message: 'Error generating response', error });
+    console.error("Error:", error);
+    res.status(500).json({ message: "Error generating response", error });
   }
 };
 
@@ -77,7 +77,7 @@ export const uploadResume = async (req, res) => {
     const experience = JSON.parse(req.body.experience);
     const summary = JSON.parse(req.body.summary);
     if (!userId) {
-      return res.status(400).json({ message: 'User ID is required.' });
+      return res.status(400).json({ message: "User ID is required." });
     }
 
     const updatedData = {
@@ -96,23 +96,88 @@ export const uploadResume = async (req, res) => {
 
     const user = await User.findOneAndUpdate(
       { _id: userId },
-      { 
-        $set: { 
-          "profile.skills": skills, 
-          "profile.bio": summary 
-        } 
+      {
+        $set: {
+          "profile.skills": skills,
+          "profile.bio": summary,
+        },
       },
       { new: true }
     );
 
     return res.status(200).json({
-      message: 'Resume saved successfully.',
-      data: resume,user, 
+      message: "Resume saved successfully.",
+      data: resume,
+      user,
       success: true,
     });
-
   } catch (error) {
-    console.error('Error uploading resume:', error);
-    return res.status(500).json({ message: 'Error uploading resume', error });
+    console.error("Error uploading resume:", error);
+    return res.status(500).json({ message: "Error uploading resume", error });
+  }
+};
+
+// Controller function to update the resume
+export const updateResume = async (req, res) => {
+  const { skills, projects, summary, experience } = req.body;
+  const userId = req.id;
+
+  // Validate if user exists
+  const user = await User.findById(userId);
+  if (!user) {
+    return res.status(404).json({ error: "User not found." });
+  }
+
+  try {
+    // Reformat the data to match the model structure
+    const formattedSkills = skills || [];
+    const formattedProjects = projects
+      ? projects.map((project) => ({
+          name: project.name,
+          description: project.description,
+          technologies: project.technologies || [],
+        }))
+      : [];
+    const formattedExperience = experience
+      ? experience.map(
+          (exp) =>
+            `${exp.role} at ${exp.company} (${exp.duration}): ${exp.details}`
+        )
+      : [];
+
+    // Check if the resume already exists
+    let resume = await Resume.findOne({ userId });
+
+    if (resume) {
+      // Update the existing resume
+      resume.skills = formattedSkills;
+      resume.projects = formattedProjects;
+      resume.summary = summary;
+      resume.experience = formattedExperience;
+
+      // Save updated resume
+      await resume.save();
+      return res
+        .status(200)
+        .json({ message: "Resume updated successfully!", resume });
+    } else {
+      // Create a new resume if none exists
+      resume = new Resume({
+        userId,
+        skills: formattedSkills,
+        projects: formattedProjects,
+        summary,
+        experience: formattedExperience,
+      });
+
+      // Save new resume
+      await resume.save();
+      return res
+        .status(201)
+        .json({ message: "Resume created successfully!", resume });
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Error updating the resume." });
   }
 };
