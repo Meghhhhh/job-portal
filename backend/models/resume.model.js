@@ -26,6 +26,14 @@ const resumeSchema = new mongoose.Schema({
     type: [String],
     default: [],
   },
+  education: [
+    {
+      institution: { type: String, required: true },
+      degree: { type: String, required: true },
+      gpa: { type: String, required: false },
+      honors: { type: String, required: false },
+    },
+  ],
 });
 
 export const Resume = mongoose.model('Resume', resumeSchema);
