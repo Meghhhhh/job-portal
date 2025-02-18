@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { PYTHON_API_END_POINT } from "@/utils/constant";
 
 const ResumeParser = () => {
   const [resumeFile, setResumeFile] = useState(null);
@@ -21,8 +22,7 @@ const ResumeParser = () => {
 
     try {
       const response = await axios.post(
-        `http://127.0.0.1:5000/process`,
-        // `${RESUME_API_END_POINT}/process`,
+        `${PYTHON_API_END_POINT}/process`,
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
@@ -46,8 +46,7 @@ const ResumeParser = () => {
 
     try {
       const response = await axios.post(
-        `http://127.0.0.1:5000/ats`,
-        // `${COMPANY_API_END_POINT}/evaluate`,
+        `${PYTHON_API_END_POINT}/ats`,
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },

@@ -6,6 +6,7 @@ import axios from "axios";
 import {
   APPLICATION_API_END_POINT,
   JOB_API_END_POINT,
+  PYTHON_API_END_POINT,
   USER_API_END_POINT,
 } from "@/utils/constant";
 import { setSingleJob } from "@/redux/jobSlice";
@@ -75,7 +76,7 @@ const JobDescription = () => {
 
       formData.append("job_description", singleJob?.description);
 
-      const response = await axios.post(`http://127.0.0.1:5000/ats`, formData, {
+      const response = await axios.post(`${PYTHON_API_END_POINT}/ats`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
