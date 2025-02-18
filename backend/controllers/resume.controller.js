@@ -117,10 +117,10 @@ export const uploadResume = async (req, res) => {
   }
 };
 
-// Controller function to update the resume
 export const updateResume = async (req, res) => {
-  const { skills, projects, summary, experience } = req.body;
+  const { skills, projects, summary, experience, education } = req.body;
   const userId = req.id;
+  console.log(req.body);
 
   // Validate if user exists
   const user = await User.findById(userId);
@@ -129,23 +129,34 @@ export const updateResume = async (req, res) => {
   }
 
   try {
-    // Reformat the data to match the model structure
-    const formattedSkills = skills || [];
+    // Format the data to match the schema
+    const formattedSkills = skills
+      ? skills.map((skill) => ({
+          name: skill.name,
+          level: [0, 1, 2, 3].includes(skill.level) ? skill.level : 0,
+        }))
+      : [];
+
     const formattedProjects = projects
       ? projects.map((project) => ({
           name: project.name,
           description: project.description,
-          technologies: project.technologies || [],
+          isVerified: project.isVerified || false,
         }))
       : [];
-    const formattedExperience = experience
-      ? experience.map(
-          (exp) =>
-            `${exp.role} at ${exp.company} (${exp.duration}): ${exp.details}`
-        )
+
+    const formattedExperience = experience || [];
+
+    const formattedEducation = education
+      ? education.map((edu) => ({
+          institution: edu.institution,
+          degree: edu.degree,
+          gpa: edu.gpa || "",
+          honors: edu.honors || "",
+        }))
       : [];
 
-    // Check if the resume already exists
+    // Check if the resume exists
     let resume = await Resume.findOne({ userId });
 
     if (resume) {
@@ -154,6 +165,7 @@ export const updateResume = async (req, res) => {
       resume.projects = formattedProjects;
       resume.summary = summary;
       resume.experience = formattedExperience;
+      resume.education = formattedEducation;
 
       // Save updated resume
       await resume.save();
@@ -168,6 +180,7 @@ export const updateResume = async (req, res) => {
         projects: formattedProjects,
         summary,
         experience: formattedExperience,
+        education: formattedEducation,
       });
 
       // Save new resume
