@@ -1,4 +1,3 @@
-
 import mongoose from 'mongoose';
 
 const resumeSchema = new mongoose.Schema({
@@ -7,16 +6,26 @@ const resumeSchema = new mongoose.Schema({
     ref: 'User',
     required: true,
   },
-  skills: { type: [String], default: [], required: true },
-  projects: [
+  skills: [
     {
-      name: String,
-      description: String,
+      name: { type: String, required: true },
+      level: { type: Number, enum: [0, 1, 2, 3], default: 0, required: true },
     },
   ],
-  summary : {type: String, required: true},
-  experience: { type: [String], default: [] },
+  projects: [
+    {
+      name: { type: String, required: true },
+      description: { type: String, required: true },
+    },
+  ],
+  summary: {
+    type: String,
+    required: true,
+  },
+  experience: {
+    type: [String],
+    default: [],
+  },
 });
 
 export const Resume = mongoose.model('Resume', resumeSchema);
-
