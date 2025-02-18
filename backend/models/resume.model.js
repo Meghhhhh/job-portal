@@ -16,6 +16,7 @@ const resumeSchema = new mongoose.Schema({
     {
       name: { type: String, required: true },
       description: { type: String, required: true },
+      isVerified: {type: Boolean, required: true, default: false}
     },
   ],
   summary: {
