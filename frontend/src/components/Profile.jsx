@@ -10,7 +10,7 @@ import { useSelector } from "react-redux";
 import useGetAppliedJobs from "@/hooks/useGetAppliedJobs";
 import { toast } from "sonner";
 import axios from "axios";
-import { RESUME_API_END_POINT } from "@/utils/constant";
+import { PYTHON_API_END_POINT, RESUME_API_END_POINT } from "@/utils/constant";
 
 const Profile = () => {
   useGetAppliedJobs();
@@ -31,7 +31,7 @@ const Profile = () => {
       formData.append("resume_url", user.profile.resume); // ✅ Correct key name
 
       const res = await axios.post(
-        `http://127.0.0.1:5000/extract-key-details`,
+        `${PYTHON_API_END_POINT}/extract-key-details`,
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
