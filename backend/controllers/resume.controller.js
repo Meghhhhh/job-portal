@@ -194,3 +194,46 @@ export const updateResume = async (req, res) => {
     return res.status(500).json({ error: "Error updating the resume." });
   }
 };
+
+export const getAllSkills = async (req, res) => {
+  try {
+    const  userId  = req.id;
+
+    if (!userId) {
+      return res.status(400).json({ error: "User ID is required." });
+    }
+
+    const resume = await Resume.findOne({ userId });
+
+    if (!resume) {
+      return res.status(404).json({ error: "Resume not found." });
+    }
+    console.log(resume.skills);
+    return res.status(200).json({ skills: resume.skills });
+  } catch (error) {
+    console.error("Error fetching skills:", error);
+    return res.status(500).json({ error: "Internal server error." });
+  }
+};
+
+
+export const getAllProjects = async(req, res) => {
+  try {
+    const  userId  = req.id;
+
+    if (!userId) {
+      return res.status(400).json({ error: "User ID is required." });
+    }
+
+    const resume = await Resume.findOne({ userId });
+
+    if (!resume) {
+      return res.status(404).json({ error: "Resume not found." });
+    }
+    console.log(resume.projects);
+    return res.status(200).json({ projects: resume.projects });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: "Error updating the resume." });
+  }
+}

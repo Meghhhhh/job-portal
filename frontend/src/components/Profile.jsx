@@ -11,6 +11,7 @@ import useGetAppliedJobs from "@/hooks/useGetAppliedJobs";
 import { toast } from "sonner";
 import axios from "axios";
 import { PYTHON_API_END_POINT, RESUME_API_END_POINT } from "@/utils/constant";
+import Skills from "./Skills";
 
 const Profile = () => {
   useGetAppliedJobs();
@@ -372,6 +373,8 @@ const Profile = () => {
         <h1 className="font-bold text-lg my-5">Applied Jobs</h1>
         <AppliedJobTable />
       </div>
+
+      <Skills />
 
       <UpdateProfileDialog open={open} setOpen={setOpen} />
     </div>
