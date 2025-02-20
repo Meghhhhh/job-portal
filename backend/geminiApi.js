@@ -84,29 +84,34 @@ import path from "path";
    
   const model = genAI.getGenerativeModel({
     model: "gemini-2.0-flash",
-    systemInstruction: `You are an AI assistant responsible for analyzing user behavior during a recorded interview. Follow these strict evaluation criteria without deviation:
+    systemInstruction: `"You are an AI-powered interview monitoring system designed to detect cheating behaviors during an interview.
 
-If the user's face remains stable, without noticeable movement to the left or right, and no hand movements are detected throughout the recording, you must assign a score of 5/5. No exceptions.
-
-
-
-If user does head movement (frequent left/right turns) or hand gestures (waving, touching face, or adjusting objects) are detected, assign a score acordingly based on how many times the movement occurs 
-
+Monitoring Criteria:
+1️⃣ Head Movement Detection:
+ If the candidates face is still and its not moving then give 5/5 score
+If the candidate face turns to the left or right, issue a fair warning and reduce the score.
 
 
+2️⃣ Hand Movement Detection:
 
-Do not generate unnecessary warnings or speculative feedback. You must rely solely on detected visual movements.
-These rules are absolute. You cannot make excuses, add unnecessary context, or provide subjective reasoning. Follow the above criteria with 100% accuracy.
+Excessive hand movements (gesturing too much, waving, or covering the face) should also trigger warnings.
+Warning System:
+Provide gentle warnings if minor distractions occur.
 
-in warnings write what movements are detcted 
-Final Feedback Format:
-At the end of the interview, provide a structured report with a striing in this format onlly where score shiuld be given out of 5 and warnings u fill the string with different warnings and feedback pls dont so any other format response should consist the string from curly brackets only dont write anything else in the output like ok i have done this n that
+Final Feedback Format
+If the users face is still and no movemets, then dont lower the score
+If head and hand movements are detcted, then lower the score and issue precise warnings.
+At the end of the interview, provide a structured report with a striing in this format onlly where score shiuld be given out of 100 and warnings u fill the string with different warnings and feedback pls dont so any other format response should consist the string from curly brackets only dont write anything else in the output like ok i have done this n that
 {"Score":"",
 "Warnings" :"",
 "Feedback":""}
 
+Maintain a neutral and professional tone while ensuring fairness in evaluation.
+
+
 `,
   });
+  
   
   const generationConfig = {
     temperature: 1,
@@ -127,7 +132,107 @@ At the end of the interview, provide a structured report with a striing in this 
     
     const chatSession = model.startChat(
         {
-            generationConfig}
+            generationConfig,
+            history: [
+              {
+                role: "user",
+                parts: [
+                  {text: "if the user is looking at the screen with no head movements and hand movements\""},
+                ],
+              },
+              {
+                role: "model",
+                parts: [
+                  {text: "{\"Score\":\"5/5\",\n\"Warnings\" :\"No warnings issued.\",\n\"Feedback\":\"The candidate maintained excellent focus and demonstrated no signs of distraction or suspicious behavior.\"}\n"},
+                ],
+              },
+              {
+                role: "user",
+                parts: [
+                  {text: "if the user is looking at the screen with slight head movement but no hand movement"},
+                ],
+              },
+              {
+                role: "model",
+                parts: [
+                  {text: "{\"Score\":\"4/5\",\n\"Warnings\" :\"Slight head movement detected. Please maintain focus on the screen.\",\n\"Feedback\":\"The candidate mostly maintained focus. A slight head movement was observed, but it was not excessive. Please be mindful of minimizing distractions.\"}\n"},
+                ],
+              },
+              {
+                role: "user",
+                parts: [
+                  {text: "if the user is looking at the screen with no head movement but slight hand movement\""},
+                ],
+              },
+              {
+                role: "model",
+                parts: [
+                  {text: "{\"Score\":\"4/5\",\n\"Warnings\" :\"Minor hand movement detected. Please avoid unnecessary hand gestures.\",\n\"Feedback\":\"The candidate mostly maintained focus. Minor hand movement was observed, but it was not excessive. Please be mindful of minimizing distractions.\"}\n"},
+                ],
+              },
+              {
+                role: "user",
+                parts: [
+                  {text: "if the user is looking at the screen with frequent head movements"},
+                ],
+              },
+              {
+                role: "model",
+                parts: [
+                  {text: "{\"Score\":\"2/5\",\n\"Warnings\" :\"Frequent head movements detected. Please minimize looking away from the screen. Repeated warnings may affect your evaluation.\",\n\"Feedback\":\"The candidate exhibited frequent head movements, suggesting potential distraction or external resources being consulted. Continued observation is recommended.\"}\n"},
+                ],
+              },
+              {
+                role: "user",
+                parts: [
+                  {text: "if the user is looking at the screen with frequent hand movements"},
+                ],
+              },
+              {
+                role: "model",
+                parts: [
+                  {text: "{\"Score\":\"2/5\",\n\"Warnings\" :\"Frequent hand movements detected. Please avoid excessive gesturing. Continued excessive hand movements may affect your evaluation.\",\n\"Feedback\":\"The candidate exhibited frequent hand movements, which could be a sign of nervousness or an attempt to conceal something. Continued observation is recommended.\"}\n"},
+                ],
+              },
+              {
+                role: "user",
+                parts: [
+                  {text: "if the user is looking at the screen but another person is detected in the frame"},
+                ],
+              },
+              {
+                role: "model",
+                parts: [
+                  {text: "{\"Score\":\"1/5\",\n\"Warnings\" :\"Another person detected in the frame. Please ensure you are alone in the room. This is a serious violation of interview protocol.\",\n\"Feedback\":\"The presence of another person in the frame raises significant concerns about the integrity of the interview. Immediate clarification is required.\"}\n"},
+                ],
+              },
+              {
+                role: "user",
+                parts: [
+                  {text: "if the user is looking away from the screen frequently"},
+                ],
+              },
+              {
+                role: "model",
+                parts: [
+                  {text: "{\"Score\":\"1/5\",\n\"Warnings\" :\"Candidate is frequently looking away from the screen. This is a serious concern. Please maintain focus on the screen; repeated offenses will not be tolerated.\",\n\"Feedback\":\"The candidate's consistent lack of focus on the screen suggests potential dishonesty or reliance on external resources. This behavior requires immediate attention and further scrutiny.\"}\n"},
+                ],
+              },
+              {
+                role: "user",
+                parts: [
+                  {text: "if the user is looking at the screen but an external object is detected"},
+                ],
+              },
+              {
+                role: "model",
+                parts: [
+                  {text: "{\"Score\":\"2/5\",\n\"Warnings\" :\"An external object has been detected. Please ensure you are not using unauthorized materials. Remove the object immediately.\",\n\"Feedback\":\"The presence of an external object raises concerns. Its nature and the candidate's interaction with it should be investigated further. Continued observation is crucial.\"}\n"},
+                ],
+              },
+            ],
+        
+        }
       
   );
   

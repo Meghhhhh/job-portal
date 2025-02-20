@@ -1,16 +1,22 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useSelector } from "react-redux";
 import axios from "axios";
+import { useDispatch } from "react-redux";
 import { ReactMediaRecorder } from "react-media-recorder";
-import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognition";
-
-const CameraScreen = ({ setTranscribedText }) => { // Accepting setTranscribedText as a prop
+import SpeechRecognition, {
+  useSpeechRecognition,
+} from "react-speech-recognition";
+import { addFeedback,clearFeedbacks } from "../../redux/interviewFeedbackSlice";
+const CameraScreen = ({ setTranscribedText }) => {
+  // Accepting setTranscribedText as a prop
   const [uploading, setUploading] = useState(false);
   const [uploadedVideoUrl, setUploadedVideoUrl] = useState(null);
   const [resultFile, setResultFile] = useState(null);
   const [recording, setRecording] = useState(false);
   const [transcribedText, setLocalTranscribedText] = useState(""); // Store transcribed text locally
   const videoRef = useRef(null);
-
+  const dispatch = useDispatch();
+  const feedbackList = useSelector((state) => state.interviewFeedback.feedbackList);
   // Speech Recognition Hook
   const { transcript, listening, resetTranscript } = useSpeechRecognition();
 
@@ -59,7 +65,7 @@ const CameraScreen = ({ setTranscribedText }) => { // Accepting setTranscribedTe
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );
-
+      console.log(uploadResponse);
       setResultFile(uploadResponse.data.response);
     } catch (error) {
       console.error("Upload failed:", error);
@@ -82,6 +88,26 @@ const CameraScreen = ({ setTranscribedText }) => { // Accepting setTranscribedTe
   } else if (typeof resultFile === "object") {
     parsedResult = resultFile;
   }
+  // useEffect(() => {
+  //   dispatch(clearFeedbacks()); // Clears the feedback list
+  //   console.log("Feedback list cleared!");
+  // }, [dispatch]);
+  
+
+  useEffect(() => {
+    if (parsedResult) {
+      // Check if parsedResult already exists in feedbackList
+      const isDuplicate = feedbackList.some(
+        (feedback) => JSON.stringify(feedback) === JSON.stringify(parsedResult)
+      );
+      
+      
+        dispatch(addFeedback(parsedResult)); // Push only if it's unique
+        console.log("Added Unique Parsed Result:", parsedResult);
+        console.log("Current Feedback List before adding:", feedbackList);
+     
+    }
+  }, [parsedResult]);
 
   // Handle speech recording
   const startVoiceRecording = () => {
@@ -108,6 +134,7 @@ const CameraScreen = ({ setTranscribedText }) => { // Accepting setTranscribedTe
                 autoPlay
                 muted
                 className="w-full rounded-lg mb-4 shadow-md"
+                style={{ transform: "scaleX(-1)" }}
               />
 
               <div className="flex space-x-4 mb-4">
@@ -173,7 +200,6 @@ const CameraScreen = ({ setTranscribedText }) => { // Accepting setTranscribedTe
               )}
 
               {/* Speech Recording Section */}
-             
 
               {/* Display Parsed Feedback */}
               {parsedResult && (
@@ -184,21 +210,19 @@ const CameraScreen = ({ setTranscribedText }) => { // Accepting setTranscribedTe
 
                   <div className="mb-3">
                     <p className="text-gray-700 font-semibold">
-                      Score: <span className="text-blue-600">{parsedResult.Score}</span>
+                      Score:{" "}
+                      <span className="text-blue-600">
+                        {parsedResult.Score}
+                      </span>
                     </p>
                   </div>
 
                   {parsedResult.Feedback && (
                     <div className="mb-3">
-                      <h4 className="text-gray-800 font-semibold mb-1">💡 Feedback:</h4>
+                      <h4 className="text-gray-800 font-semibold mb-1">
+                        💡 Feedback:
+                      </h4>
                       <p className="text-gray-600">{parsedResult.Feedback}</p>
-                    </div>
-                  )}
-
-                  {parsedResult.Warnings && (
-                    <div>
-                      <h4 className="text-red-600 font-semibold mb-1">⚠️ Warnings:</h4>
-                      <p className="text-red-500">{parsedResult.Warnings}</p>
                     </div>
                   )}
                 </div>
