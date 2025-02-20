@@ -105,7 +105,7 @@ const Preview = ({ data }) => {
 
       <Section
         title="SKILLS"
-        content={<p className="text-gray-700">{data.skills.join(' | ')}</p>}
+        content={<p className="text-gray-700">{data.skills.map(skill => skill.name).join(' | ')}</p>}
       />
 
       <Section
