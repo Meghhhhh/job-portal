@@ -14,18 +14,13 @@ const resumeSchema = new mongoose.Schema({
   ],
   projects: [
     {
-      name: { type: String, required: true },
-      description: { type: String, required: true },
+      name: String,
+      description: String,
     },
   ],
-  summary: {
-    type: String,
-    required: true,
-  },
-  experience: {
-    type: [String],
-    default: [],
-  },
+  summary : {type: String, required: true},
+  experience: { type: [String], default: [] },
 });
 
 export const Resume = mongoose.model('Resume', resumeSchema);
+

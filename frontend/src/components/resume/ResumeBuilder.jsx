@@ -154,7 +154,7 @@ const ResumeBuilder = () => {
             Preview
           </h2>
           <div ref={contentRef} className="bg-white">
-            {Object.keys(resumeData).length ? (
+            {resumeData?.length ? (
               <Preview data={resumeData} />
             ) : (
               <p className="text-gray-500 text-center py-10">

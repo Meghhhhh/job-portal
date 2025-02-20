@@ -254,7 +254,15 @@ def extract_key_details():
                     "duration": "",  # Employment period (e.g., Jan 2020 - Dec 2022)
                     "details": ""  # Key responsibilities and achievements
                 }}
-            ]
+            ],
+            education: [
+                {{
+                institution: "",
+                degree: "",
+                gpa: "",
+                honors: "",
+                }}
+            ],
         }}
         """
 

@@ -43,6 +43,7 @@ const Profile = () => {
       if (res.status === 200) {
         toast.success("Resume information extracted successfully!");
         setExtractedData(res.data); // Store extracted data
+        console.log("Extracted Data:", res.data);
       } else {
         toast.error("Failed to extract resume information.");
       }
@@ -56,9 +57,33 @@ const Profile = () => {
   const updateExtractedInfo = async () => {
     try {
       toast.loading("Updating resume details...");
+
+      const formattedData = {
+        summary: extractedData.summary || "",
+        skills: extractedData.skills.map((skill) => ({
+          name: skill,
+          level: 0, // Defaulting to 0, update as needed
+        })),
+        projects: extractedData.projects.map((project) => ({
+          name: project.name,
+          description: project.description,
+          isVerified: false, // Default value
+        })),
+        experience: extractedData.experience.map(
+          (exp) =>
+            `${exp.role} at ${exp.company} (${exp.duration}): ${exp.details}`
+        ),
+        education: extractedData.education.map((edu) => ({
+          institution: edu.institution || "",
+          degree: edu.degree || "",
+          gpa: edu.gpa || "",
+          honors: edu.honors || "",
+        })),
+      };
+
       const res = await axios.post(
-        `${RESUME_API_END_POINT}/update-extract`, // Make sure to use the correct URL
-        extractedData, // Send the updated data from the state
+        `${RESUME_API_END_POINT}/update-extract`,
+        formattedData,
         {
           headers: { "Content-Type": "application/json" },
           withCredentials: true,
@@ -68,6 +93,7 @@ const Profile = () => {
       toast.dismiss();
       if (res.status === 200 || res.status === 201) {
         toast.success("Resume details updated successfully!");
+        setExtractedData(null);
       } else {
         toast.error("Failed to update resume information.");
       }
@@ -270,7 +296,69 @@ const Profile = () => {
               </div>
             ))}
           </div>
-
+          <div className="mb-4">
+            <Label className="font-bold">Education</Label>
+            {extractedData.education.map((edu, index) => (
+              <div key={index} className="mb-2">
+                <input
+                  type="text"
+                  value={edu.institution}
+                  onChange={(e) => {
+                    const updatedEducation = [...extractedData.education];
+                    updatedEducation[index].institution = e.target.value;
+                    setExtractedData({
+                      ...extractedData,
+                      education: updatedEducation,
+                    });
+                  }}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                  placeholder="Institution"
+                />
+                <input
+                  type="text"
+                  value={edu.degree}
+                  onChange={(e) => {
+                    const updatedEducation = [...extractedData.education];
+                    updatedEducation[index].degree = e.target.value;
+                    setExtractedData({
+                      ...extractedData,
+                      education: updatedEducation,
+                    });
+                  }}
+                  className="w-full p-2 border border-gray-300 rounded-md mt-2"
+                  placeholder="Degree"
+                />
+                <input
+                  type="text"
+                  value={edu.gpa}
+                  onChange={(e) => {
+                    const updatedEducation = [...extractedData.education];
+                    updatedEducation[index].gpa = e.target.value;
+                    setExtractedData({
+                      ...extractedData,
+                      education: updatedEducation,
+                    });
+                  }}
+                  className="w-full p-2 border border-gray-300 rounded-md mt-2"
+                  placeholder="GPA"
+                />
+                <input
+                  type="text"
+                  value={edu.honors}
+                  onChange={(e) => {
+                    const updatedEducation = [...extractedData.education];
+                    updatedEducation[index].honors = e.target.value;
+                    setExtractedData({
+                      ...extractedData,
+                      education: updatedEducation,
+                    });
+                  }}
+                  className="w-full p-2 border border-gray-300 rounded-md mt-2"
+                  placeholder="Honors"
+                />
+              </div>
+            ))}
+          </div>
           <Button
             onClick={updateExtractedInfo}
             className="mt-4"
