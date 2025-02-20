@@ -1,31 +1,31 @@
-import React, { useState } from "react";
-import axios from "axios";
-import { PYTHON_API_END_POINT } from "@/utils/constant";
+import React, { useState } from 'react';
+import axios from 'axios';
+import { PYTHON_API_END_POINT } from '@/utils/constant';
 
 const FormSection = ({ onUpdate }) => {
   const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    mobile: "",
-    schoolAddress: "",
-    permanentAddress: "",
-    summary: "",
+    name: '',
+    email: '',
+    mobile: '',
+    schoolAddress: '',
+    permanentAddress: '',
+    summary: '',
     education: [
       {
-        institution: "",
-        location: "",
-        degree: "",
-        extra: "",
-        gpa: "",
-        honors: "",
+        institution: '',
+        location: '',
+        degree: '',
+        extra: '',
+        gpa: '',
+        honors: '',
       },
     ],
     experience: [
-      { role: "", company: "", location: "", duration: "", details: "" },
+      { role: '', company: '', location: '', duration: '', details: '' },
     ],
-    projects: [{ name: "", description: "" }],
-    achievements: [{ title: "", description: "" }],
-    skills: [],
+    projects: [{ name: '', description: '' }],
+    achievements: [{ title: '', description: '' }],
+    skills: [{ name: '', level: '' }],
   });
   const handleFileChange = (event, setFile) => {
     setFile(event.target.files[0]);
@@ -33,26 +33,26 @@ const FormSection = ({ onUpdate }) => {
   const [resumeFile, setResumeFile] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const handleSubmitResume = async (event) => {
+  const handleSubmitResume = async event => {
     event.preventDefault();
-    if (!resumeFile) return alert("Please upload a PDF resume.");
+    if (!resumeFile) return alert('Please upload a PDF resume.');
     setLoading(true);
     const formData = new FormData();
-    formData.append("pdf_doc", resumeFile);
+    formData.append('pdf_doc', resumeFile);
 
     try {
       const response = await axios.post(
         `${PYTHON_API_END_POINT}/process`,
         formData,
         {
-          headers: { "Content-Type": "multipart/form-data" },
-        }
+          headers: { 'Content-Type': 'multipart/form-data' },
+        },
       );
       const data = response.data; // Extract response data
       console.log(data);
 
       // Update formData with extracted details
-      setFormData((prevData) => ({
+      setFormData(prevData => ({
         ...prevData,
         name: data.name || prevData.name,
         email: data.email || prevData.email,
@@ -70,8 +70,8 @@ const FormSection = ({ onUpdate }) => {
       // Propagate updated data to parent component if needed
       onUpdate(data);
     } catch (error) {
-      console.error("Error processing resume:", error);
-      alert("Error processing resume.");
+      console.error('Error processing resume:', error);
+      alert('Error processing resume.');
     } finally {
       setLoading(false); // Reset loading after request completes
     }
@@ -93,7 +93,7 @@ const FormSection = ({ onUpdate }) => {
 
   // Handle array additions
   const addField = (section, emptyData) => {
-    setFormData((prevData) => ({
+    setFormData(prevData => ({
       ...prevData,
       [section]: [...prevData[section], emptyData],
     }));
@@ -108,18 +108,18 @@ const FormSection = ({ onUpdate }) => {
             type="file"
             accept=".pdf"
             className="block w-full text-sm text-gray-300 p-2 rounded-lg cursor-pointer bg-gray-700 focus:outline-none"
-            onChange={(e) => handleFileChange(e, setResumeFile)}
+            onChange={e => handleFileChange(e, setResumeFile)}
           />
           <button
             type="submit"
             className={`mt-4 w-full py-2 rounded-md transition ${
               resumeFile && !loading
-                ? "bg-blue-600 text-white hover:bg-blue-700"
-                : "bg-gray-400 text-gray-200 cursor-not-allowed"
+                ? 'bg-blue-600 text-white hover:bg-blue-700'
+                : 'bg-gray-400 text-gray-200 cursor-not-allowed'
             }`}
             disabled={!resumeFile || loading}
           >
-            {loading ? "Processing..." : "Process Resume"}
+            {loading ? 'Processing...' : 'Process Resume'}
           </button>
         </form>
       </div>
@@ -132,21 +132,21 @@ const FormSection = ({ onUpdate }) => {
           type="text"
           placeholder="Full Name"
           value={formData.name}
-          onChange={(e) => handleChange(e, null, "name")}
+          onChange={e => handleChange(e, null, 'name')}
           className="input-field"
         />
         <input
           type="email"
           placeholder="Email"
           value={formData.email}
-          onChange={(e) => handleChange(e, null, "email")}
+          onChange={e => handleChange(e, null, 'email')}
           className="input-field"
         />
         <input
           type="text"
           placeholder="Mobile"
           value={formData.mobile}
-          onChange={(e) => handleChange(e, null, "mobile")}
+          onChange={e => handleChange(e, null, 'mobile')}
           className="input-field"
         />
 
@@ -155,7 +155,7 @@ const FormSection = ({ onUpdate }) => {
         <textarea
           placeholder="Write a brief summary (Optional). It will be AI generated if you choose not to."
           value={formData.summary}
-          onChange={(e) => handleChange(e, null, "summary")}
+          onChange={e => handleChange(e, null, 'summary')}
           className="input-field"
           rows={6}
         />
@@ -165,16 +165,14 @@ const FormSection = ({ onUpdate }) => {
         <input
           type="text"
           placeholder="Skills (comma-separated)"
-          value={formData.skills.join(", ")}
-          onChange={(e) => {
-            setFormData({
-              ...formData,
-              skills: e.target.value.split(",").map((skill) => skill.trim()),
-            });
-            onUpdate({
-              ...formData,
-              skills: e.target.value.split(",").map((skill) => skill.trim()),
-            });
+          value={formData.skills.map(skill => skill.name).join(', ')}
+          onChange={e => {
+            const updatedSkills = e.target.value
+              .split(',')
+              .map(skill => ({ name: skill.trim(), level: '' })); 
+
+            setFormData({ ...formData, skills: updatedSkills });
+            onUpdate({ ...formData, skills: updatedSkills });
           }}
           className="input-field"
         />
@@ -187,44 +185,42 @@ const FormSection = ({ onUpdate }) => {
               type="text"
               placeholder="Institution"
               value={edu.institution}
-              onChange={(e) =>
-                handleChange(e, index, "education", "institution")
-              }
+              onChange={e => handleChange(e, index, 'education', 'institution')}
               className="input-field"
             />
             <input
               type="text"
               placeholder="Location"
               value={edu.location}
-              onChange={(e) => handleChange(e, index, "education", "location")}
+              onChange={e => handleChange(e, index, 'education', 'location')}
               className="input-field"
             />
             <input
               type="text"
               placeholder="Degree"
               value={edu.degree}
-              onChange={(e) => handleChange(e, index, "education", "degree")}
+              onChange={e => handleChange(e, index, 'education', 'degree')}
               className="input-field"
             />
             <input
               type="text"
               placeholder="Honors"
               value={edu.honors}
-              onChange={(e) => handleChange(e, index, "education", "honors")}
+              onChange={e => handleChange(e, index, 'education', 'honors')}
               className="input-field"
             />
             <input
               type="text"
               placeholder="GPA"
               value={edu.gpa}
-              onChange={(e) => handleChange(e, index, "education", "gpa")}
+              onChange={e => handleChange(e, index, 'education', 'gpa')}
               className="input-field"
             />
             <input
               type="text"
               placeholder="Extra (Optional)"
               value={edu.extra}
-              onChange={(e) => handleChange(e, index, "education", "extra")}
+              onChange={e => handleChange(e, index, 'education', 'extra')}
               className="input-field"
             />
           </div>
@@ -232,13 +228,13 @@ const FormSection = ({ onUpdate }) => {
         <button
           type="button"
           onClick={() =>
-            addField("education", {
-              institution: "",
-              location: "",
-              degree: "",
-              extra: "",
-              gpa: "",
-              honors: "",
+            addField('education', {
+              institution: '',
+              location: '',
+              degree: '',
+              extra: '',
+              gpa: '',
+              honors: '',
             })
           }
           className="btn-add"
@@ -254,35 +250,35 @@ const FormSection = ({ onUpdate }) => {
               type="text"
               placeholder="Role"
               value={exp.role}
-              onChange={(e) => handleChange(e, index, "experience", "role")}
+              onChange={e => handleChange(e, index, 'experience', 'role')}
               className="input-field"
             />
             <input
               type="text"
               placeholder="Company"
               value={exp.company}
-              onChange={(e) => handleChange(e, index, "experience", "company")}
+              onChange={e => handleChange(e, index, 'experience', 'company')}
               className="input-field"
             />
             <input
               type="text"
               placeholder="Location"
               value={exp.location}
-              onChange={(e) => handleChange(e, index, "experience", "location")}
+              onChange={e => handleChange(e, index, 'experience', 'location')}
               className="input-field"
             />
             <input
               type="text"
               placeholder="Duration"
               value={exp.duration}
-              onChange={(e) => handleChange(e, index, "experience", "duration")}
+              onChange={e => handleChange(e, index, 'experience', 'duration')}
               className="input-field"
             />
             <input
               type="text"
               placeholder="Details"
               value={exp.details}
-              onChange={(e) => handleChange(e, index, "experience", "details")}
+              onChange={e => handleChange(e, index, 'experience', 'details')}
               className="input-field"
             />
           </div>
@@ -290,12 +286,12 @@ const FormSection = ({ onUpdate }) => {
         <button
           type="button"
           onClick={() =>
-            addField("experience", {
-              role: "",
-              company: "",
-              location: "",
-              duration: "",
-              details: "",
+            addField('experience', {
+              role: '',
+              company: '',
+              location: '',
+              duration: '',
+              details: '',
             })
           }
           className="btn-add"
@@ -311,14 +307,14 @@ const FormSection = ({ onUpdate }) => {
               type="text"
               placeholder="Achievement Title"
               value={ach.title}
-              onChange={(e) => handleChange(e, index, "achievements", "title")}
+              onChange={e => handleChange(e, index, 'achievements', 'title')}
               className="input-field"
             />
             <textarea
               placeholder="Description"
               value={ach.description}
-              onChange={(e) =>
-                handleChange(e, index, "achievements", "description")
+              onChange={e =>
+                handleChange(e, index, 'achievements', 'description')
               }
               className="input-field"
             />
@@ -327,7 +323,7 @@ const FormSection = ({ onUpdate }) => {
         <button
           type="button"
           onClick={() =>
-            addField("achievements", { title: "", description: "" })
+            addField('achievements', { title: '', description: '' })
           }
           className="btn-add"
         >
@@ -342,22 +338,20 @@ const FormSection = ({ onUpdate }) => {
               type="text"
               placeholder="Project Name"
               value={proj.name}
-              onChange={(e) => handleChange(e, index, "projects", "name")}
+              onChange={e => handleChange(e, index, 'projects', 'name')}
               className="input-field"
             />
             <textarea
               placeholder="Description"
               value={proj.description}
-              onChange={(e) =>
-                handleChange(e, index, "projects", "description")
-              }
+              onChange={e => handleChange(e, index, 'projects', 'description')}
               className="input-field"
             />
           </div>
         ))}
         <button
           type="button"
-          onClick={() => addField("projects", { name: "", description: "" })}
+          onClick={() => addField('projects', { name: '', description: '' })}
           className="btn-add"
         >
           + Add Project

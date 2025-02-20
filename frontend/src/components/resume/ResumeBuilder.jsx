@@ -26,7 +26,7 @@ const ResumeBuilder = () => {
       setResumeData(prev => ({ ...prev, summary: '' }));
 
       const promptData = {
-        skills: resumeData.skills.join(', '),
+        skills: resumeData.skills.map(skill => skill.name).join(', '),
         experience: resumeData?.experience
           ?.map(exp => `${exp.role} at ${exp.company} (${exp.duration})`)
           .join(', '),
@@ -154,7 +154,7 @@ const ResumeBuilder = () => {
             Preview
           </h2>
           <div ref={contentRef} className="bg-white">
-            {resumeData?.length ? (
+          {resumeData.name || resumeData.email || resumeData.skills.length > 0 ? (
               <Preview data={resumeData} />
             ) : (
               <p className="text-gray-500 text-center py-10">
